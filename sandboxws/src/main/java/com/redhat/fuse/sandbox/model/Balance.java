@@ -2,6 +2,9 @@ package com.redhat.fuse.sandbox.model;
 
 import java.math.BigDecimal;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name="balance")
 public class Balance {
 	private BigDecimal balance;
 	private String msisdn;

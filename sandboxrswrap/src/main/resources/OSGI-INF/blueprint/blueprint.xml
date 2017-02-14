@@ -19,61 +19,66 @@
 	https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd http://camel.apache.org/schema/blueprint 
 	http://camel.apache.org/schema/blueprint/camel-blueprint.xsd"> -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/blueprint"
-	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
-	xsi:schemaLocation="
-       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-       http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd
-       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-	<!-- JSON Providers -->
-	<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider" />
-	<!-- CXF Endpoints -->
-	<!-- http://0.0.0.0:9111 -->
-	<cxf:rsServer address="/rs" id="subscriberRs"
-		loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberRS">
-		<cxf:providers>
-			<ref component-id="jsonProvider" />
-		</cxf:providers>
-	</cxf:rsServer>
-	<cxf:cxfEndpoint address="http://127.0.0.1:9010/ws/subscriber"
-		id="subscriberWebService" loggingFeatureEnabled="true"
-		serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS" />
-	<!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd        http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <!-- JSON Providers -->
+    <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider"/>
+    <!-- CXF Endpoints -->
+    <!-- http://0.0.0.0:9111 -->
+    <cxf:rsServer address="/rs" id="subscriberRs"
+        loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberRS">
+        <cxf:providers>
+            <ref component-id="jsonProvider"/>
+        </cxf:providers>
+    </cxf:rsServer>
+    <cxf:cxfEndpoint address="http://127.0.0.1:9010/ws/subscriber"
+        id="subscriberWebService" loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS"/>
+    <!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
 		Additionally, we can also define namespace prefixes we want to use them in 
 		the XPath expressions in our CBR. While it is not required to assign id's 
 		to the <camelContext/> and <route/> elements, it is a good idea to set those 
 		for runtime management purposes (logging, JMX MBeans, ...) -->
-	<camelContext id="_context1"
-		xmlns="http://camel.apache.org/schema/blueprint">
-		<route id="employeeRS">
-			<from id="_from1" uri="cxfrs:bean:subscriberRs" />
-			<recipientList id="_recipientList1">
-				<simple>direct:${header.operationName}</simple>
-			</recipientList>
-		</route>
-		<route id="balance">
-			<from id="_from3" uri="direct:getSubcriberBalance" />
-			<setBody id="_setBody1">
-				<simple>${body[0]}</simple>
-			</setBody>
-			<!-- <convertBodyTo id="_convertBodyTo3" type="java.lang.Integer"/> -->
-			<setHeader headerName="operationNamespace" id="_setHeader2">
-				<constant>http://ws.sandbox.fuse.redhat.com//</constant>
-			</setHeader>
-			<to id="_to2" uri="cxf:bean:subscriberWebService" />
-			<convertBodyTo id="_convertBodyTo2" type="com.redhat.fuse.sandbox.ws.Balance" />
-		</route>
-		<route id="profile">
-			<from id="_from4" uri="direct:getSubscriberProfile" />
-			<setBody id="_setBody2">
-				<simple>${body[0]}</simple>
-			</setBody>
-			<!-- <convertBodyTo id="_convertBodyTo4" type="java.lang.Integer"/> -->
-			<setHeader headerName="operationNamespace" id="_setHeader3">
-				<constant>http://ws.sandbox.fuse.redhat.com//</constant>
-			</setHeader>
-			<to id="_to3" uri="cxf:bean:subscriberWebService" />
-			<convertBodyTo id="_convertBodyTo3" type="com.redhat.fuse.sandbox.ws.Profile" />
-		</route>
-	</camelContext>
+    <camelContext id="_context1" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="employeeRS">
+            <from id="_from1" uri="cxfrs:bean:subscriberRs"/>
+            <recipientList id="_recipientList1">
+                <simple>direct:${header.operationName}</simple>
+            </recipientList>
+        </route>
+        <route id="balance">
+            <!-- <convertBodyTo id="_convertBodyTo3" type="java.lang.Integer"/> -->
+            <!-- <setHeader headerName="operationNamespace" id="_setHeader2">
+                <constant>http://ws.sandbox.fuse.redhat.com//</constant>
+            </setHeader> -->
+            <from id="_from3" uri="direct:getSubcriberBalance"/>
+            <setBody id="_setBody1">
+                <simple>${body[0]}</simple>
+            </setBody>
+            <log id="_log1" message="Request generated in CXF-RS:\n${body}"/>
+            <to id="_to2" uri="cxf:bean:subscriberWebService"/>
+            <log id="_log3" message="Response generated in CXF-RS:\n${out.body}"/>
+            <convertBodyTo id="_convertBodyTo2" type="com.redhat.fuse.sandbox.ws.Balance"/>
+            <marshal id="_marshal1">
+                <json library="Jackson" prettyPrint="true"/>
+            </marshal>
+        </route>
+        <route id="profile">
+            <!-- <convertBodyTo id="_convertBodyTo4" type="java.lang.Integer"/> -->
+            <from id="_from4" uri="direct:getSubscriberProfile"/>
+            <!-- <setHeader headerName="operationNamespace" id="_setHeader3">
+                <constant>http://ws.sandbox.fuse.redhat.com//</constant>
+            </setHeader> -->
+            <setBody id="_setBody2">
+                <simple>${body[0]}</simple>
+            </setBody>
+            <log id="_log2" message="Request generated in CXF-RS:\n${body}"/>
+            <to id="_to3" uri="cxf:bean:subscriberWebService"/>
+            <log id="_log4" message="Response generated in CXF-RS:\n${out.body}"/>
+            <convertBodyTo id="_convertBodyTo3" type="com.redhat.fuse.sandbox.ws.Profile"/>
+            <marshal id="_marshal2">
+                <json library="Jackson" prettyPrint="true"/>
+            </marshal>
+        </route>
+    </camelContext>
 </blueprint>

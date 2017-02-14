@@ -1,5 +1,8 @@
 package com.redhat.fuse.sandbox.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name="profile")
 public class Profile {
 	private String profileNo;
 	private String profileGroup;

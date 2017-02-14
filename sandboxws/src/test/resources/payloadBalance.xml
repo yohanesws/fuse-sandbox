@@ -4,7 +4,7 @@
    <soapenv:Body>
       <inc:getSubcriberBalance>
          <!--Optional:-->
-         <arg0>08159167113</arg0>
+         <arg0>081588888888</arg0>
       </inc:getSubcriberBalance>
    </soapenv:Body>
 </soapenv:Envelope>

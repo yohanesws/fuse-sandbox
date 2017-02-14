@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class SubcriberProfileWSClient {
-	private static final Logger LOG = LoggerFactory.getLogger(SubcriberProfileWSClient.class);
+public class SubscriberWSClient {
+	private static final Logger LOG = LoggerFactory.getLogger(SubscriberWSClient.class);
 	
 	@Test
-    public void sendRequest() throws Exception {
+    public void sendBalanceRequest() throws Exception {
 		String res;
         /*
          * Set up the URL connection to the web service address
@@ -30,7 +30,34 @@ public class SubcriberProfileWSClient {
          * We have prepared a SOAP request in an XML file, so we send the contents of that file to our web service...
          */
         OutputStream os = connection.getOutputStream();
-        InputStream fis = SubcriberProfileWSClient.class.getResourceAsStream("/payloadProfile.xml");
+        InputStream fis = SubscriberWSClient.class.getResourceAsStream("/payloadBalance.xml");
+        copyInputStream(fis, os);
+        
+        /*
+         * ... and afterwards, we just read the SOAP response message that is sent back by the server.
+         */
+        InputStream is = connection.getInputStream();
+        System.out.println("the response is ====> ");
+        res = getStringFromInputStream(is);
+        System.out.println(res);
+        Assert.assertTrue(res.contains("0815"));
+	}
+	
+	@Test
+    public void sendProfileRequest() throws Exception {
+		String res;
+        /*
+         * Set up the URL connection to the web service address
+         */
+        URLConnection connection = new URL("http://localhost:9010/ws/subscriber").openConnection();
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        
+        /*
+         * We have prepared a SOAP request in an XML file, so we send the contents of that file to our web service...
+         */
+        OutputStream os = connection.getOutputStream();
+        InputStream fis = SubscriberWSClient.class.getResourceAsStream("/payloadProfile.xml");
         copyInputStream(fis, os);
         
         /*
