@@ -19,3 +19,4 @@ RemoteSystemsTempFiles/
 /activemq-data/
 /.classpath
 /.project
+.DS_Store
