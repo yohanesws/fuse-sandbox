@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- JBoss, Home of Professional Open Source Copyright 2014, Red Hat, Inc. 
+	and/or its affiliates, and individual contributors by the @authors tag. See 
+	the copyright.txt in the distribution for a full listing of individual contributors. 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<!-- This is the OSGi Blueprint XML file defining the Camel context and routes. 
+	Because the file is in the OSGI-INF/blueprint directory inside our JAR, it 
+	will be automatically activated as soon as the bundle is installed. The root 
+	element for any OSGi Blueprint file is 'blueprint' - you also see the namespace 
+	definitions for both the Blueprint and the Camel namespaces. -->
+<!-- <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 
+	https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd http://camel.apache.org/schema/blueprint 
+	http://camel.apache.org/schema/blueprint/camel-blueprint.xsd"> -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/blueprint"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+	xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+	<!-- JSON Providers -->
+	<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider" />
+	<!-- CXF Endpoints -->
+	<!-- http://0.0.0.0:9111 -->
+	<cxf:rsServer address="/rs" id="subscriberRs"
+		loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberRS">
+		<cxf:providers>
+			<ref component-id="jsonProvider" />
+		</cxf:providers>
+	</cxf:rsServer>
+	<cxf:cxfEndpoint address="http://127.0.0.1:9010/ws/subscriber"
+		id="subscriberWebService" loggingFeatureEnabled="true"
+		serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS" />
+	<!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
+		Additionally, we can also define namespace prefixes we want to use them in 
+		the XPath expressions in our CBR. While it is not required to assign id's 
+		to the <camelContext/> and <route/> elements, it is a good idea to set those 
+		for runtime management purposes (logging, JMX MBeans, ...) -->
+	<camelContext id="_context1"
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<route id="employeeRS">
+			<from id="_from1" uri="cxfrs:bean:subscriberRs" />
+			<recipientList id="_recipientList1">
+				<simple>direct:${header.operationName}</simple>
+			</recipientList>
+		</route>
+		<route id="balance">
+			<from id="_from3" uri="direct:getSubcriberBalance" />
+			<setBody id="_setBody1">
+				<simple>${body[0]}</simple>
+			</setBody>
+			<!-- <convertBodyTo id="_convertBodyTo3" type="java.lang.Integer"/> -->
+			<setHeader headerName="operationNamespace" id="_setHeader2">
+				<constant>http://ws.sandbox.fuse.redhat.com//</constant>
+			</setHeader>
+			<to id="_to2" uri="cxf:bean:subscriberWebService" />
+			<convertBodyTo id="_convertBodyTo2" type="com.redhat.fuse.sandbox.ws.Balance" />
+		</route>
+		<route id="profile">
+			<from id="_from4" uri="direct:getSubscriberProfile" />
+			<setBody id="_setBody2">
+				<simple>${body[0]}</simple>
+			</setBody>
+			<!-- <convertBodyTo id="_convertBodyTo4" type="java.lang.Integer"/> -->
+			<setHeader headerName="operationNamespace" id="_setHeader3">
+				<constant>http://ws.sandbox.fuse.redhat.com//</constant>
+			</setHeader>
+			<to id="_to3" uri="cxf:bean:subscriberWebService" />
+			<convertBodyTo id="_convertBodyTo3" type="com.redhat.fuse.sandbox.ws.Profile" />
+		</route>
+	</camelContext>
+</blueprint>

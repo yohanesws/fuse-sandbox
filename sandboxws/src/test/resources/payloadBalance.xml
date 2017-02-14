@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:inc="http://ws.sandbox.fuse.redhat.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <inc:getSubcriberBalance>
+         <!--Optional:-->
+         <arg0>08159167113</arg0>
+      </inc:getSubcriberBalance>
+   </soapenv:Body>
+</soapenv:Envelope>
