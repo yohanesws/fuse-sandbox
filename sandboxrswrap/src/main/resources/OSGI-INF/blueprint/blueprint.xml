@@ -14,10 +14,6 @@
 	will be automatically activated as soon as the bundle is installed. The root 
 	element for any OSGi Blueprint file is 'blueprint' - you also see the namespace 
 	definitions for both the Blueprint and the Camel namespaces. -->
-<!-- <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 
-	https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd http://camel.apache.org/schema/blueprint 
-	http://camel.apache.org/schema/blueprint/camel-blueprint.xsd"> -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xmlns:camel="http://camel.apache.org/schema/blueprint"
     xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
@@ -25,7 +21,6 @@
     <!-- JSON Providers -->
     <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider"/>
     <!-- CXF Endpoints -->
-    <!-- http://0.0.0.0:9111 -->
     <cxf:rsServer address="/rs" id="subscriberRs"
         loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberRS">
         <cxf:providers>
@@ -47,10 +42,6 @@
             </recipientList>
         </route>
         <route id="balance">
-            <!-- <convertBodyTo id="_convertBodyTo3" type="java.lang.Integer"/> -->
-            <!-- <setHeader headerName="operationNamespace" id="_setHeader2">
-                <constant>http://ws.sandbox.fuse.redhat.com//</constant>
-            </setHeader> -->
             <from id="_from3" uri="direct:getSubcriberBalance"/>
             <setBody id="_setBody1">
                 <simple>${body[0]}</simple>
@@ -64,11 +55,7 @@
             </marshal>
         </route>
         <route id="profile">
-            <!-- <convertBodyTo id="_convertBodyTo4" type="java.lang.Integer"/> -->
             <from id="_from4" uri="direct:getSubscriberProfile"/>
-            <!-- <setHeader headerName="operationNamespace" id="_setHeader3">
-                <constant>http://ws.sandbox.fuse.redhat.com//</constant>
-            </setHeader> -->
             <setBody id="_setBody2">
                 <simple>${body[0]}</simple>
             </setBody>

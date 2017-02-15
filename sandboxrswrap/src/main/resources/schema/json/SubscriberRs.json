@@ -1,0 +1,15 @@
+{
+	"msisdn": {
+		"type": "string"
+	},
+	"balance": {
+		"type": "string"
+	},
+	"profileNo": {
+		"type": "string"
+	},
+	"profileGroup": {
+		"type": "string"
+	},
+    "required": ["msisdn"]
+}

@@ -26,7 +26,7 @@
     </snapshotRepository>
   </distributionManagement>
   <properties>
-    <fabric8.features>camel-spring camel-cxf</fabric8.features>
+    <fabric8.features>camel-spring camel-cxf fabric-cxf-registry fabric-cxf fabric-zookeeper fabric-groups</fabric8.features>
     <osgi-dynamic-package></osgi-dynamic-package>
     <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
     <osgi-private-package>com.redhat.fuse.sandbox.*</osgi-private-package>

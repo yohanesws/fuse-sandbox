@@ -22,7 +22,7 @@ public class SubscriberWSClient {
         /*
          * Set up the URL connection to the web service address
          */
-        URLConnection connection = new URL("http://localhost:9010/ws/subscriber").openConnection();
+        URLConnection connection = new URL("http://localhost:9000/ws/subscriber").openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
         
@@ -49,7 +49,7 @@ public class SubscriberWSClient {
         /*
          * Set up the URL connection to the web service address
          */
-        URLConnection connection = new URL("http://localhost:9010/ws/subscriber").openConnection();
+        URLConnection connection = new URL("http://localhost:9000/ws/subscriber").openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
         
