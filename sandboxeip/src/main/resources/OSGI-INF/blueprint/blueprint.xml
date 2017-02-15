@@ -53,10 +53,14 @@
 		to the <camelContext/> and <route/> elements, it is a good idea to set those 
 		for runtime management purposes (logging, JMX MBeans, ...) -->
     <camelContext id="_context1" xmlns="http://camel.apache.org/schema/blueprint">
-        <route id="QueueSubscriber">
+        <route id="QueueSubscriber" shutdownRoute="Default">
+            <!-- <convertBodyTo id="_convertBodyTo1" type="com.redhat.fuse.sandbox.model.SubscriberRq"/> -->
             <from id="_from3" uri="amq:queue:com.redhat.fuse.sandbox.subscriber?concurrentConsumers=1"/>
-            <convertBodyTo id="_convertBodyTo1" type="com.redhat.fuse.sandbox.model.SubscriberRq"/>
             <log id="_log5" message="get queue Subcriber for ${body}"/>
+            <unmarshal id="_unmarshal1">
+                <json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.SubscriberRq"/>
+            </unmarshal>
+            <log id="_log12" message="queue unmarshall ${body}"/>
             <setProperty id="_setProperty1" propertyName="subscriberrq">
                 <simple>${body}</simple>
             </setProperty>
@@ -111,10 +115,13 @@
             <log id="_log4" message="Response generated in CXF-RS:\n ${body}"/>
         </route>
         <route id="rs">
-            <from id="_from4" uri="cxfrs:bean:subscriberCompositeRs"/>
-            <transform id="_transform1">
+            <!-- <transform id="_transform1">
                 <simple>${in.body[0]}</simple>
-            </transform>
+            </transform> -->
+            <from id="_from4" uri="cxfrs:bean:subscriberCompositeRs"/>
+            <marshal id="_marshal3">
+                <json library="Jackson" prettyPrint="true"/>
+            </marshal>
             <to id="_to6" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.subscriber"/>
             <log id="_log10" message="Response generated in CXF-RS:\n${out.body}"/>
         </route>

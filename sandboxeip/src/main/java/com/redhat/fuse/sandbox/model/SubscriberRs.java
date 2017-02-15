@@ -1,8 +1,13 @@
 package com.redhat.fuse.sandbox.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class SubscriberRs {
+public class SubscriberRs implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4117378607480062413L;
 	private BigDecimal balance;
 	private String msisdn;
 	private String profileNo;

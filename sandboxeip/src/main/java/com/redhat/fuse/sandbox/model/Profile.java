@@ -1,9 +1,15 @@
 package com.redhat.fuse.sandbox.model;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="profile")
-public class Profile {
+public class Profile implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7925664707701075734L;
 	private String profileNo;
 	private String profileGroup;
 	private String msisdn;

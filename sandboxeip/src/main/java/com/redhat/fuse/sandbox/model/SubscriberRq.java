@@ -1,8 +1,13 @@
 package com.redhat.fuse.sandbox.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SubscriberRq {
+public class SubscriberRq implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 942527514800512057L;
 	private String msisdn;
 	private List<String> inquiry;
 	public String getMsisdn() {
