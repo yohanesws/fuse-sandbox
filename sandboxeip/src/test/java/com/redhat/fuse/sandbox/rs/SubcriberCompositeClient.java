@@ -27,7 +27,7 @@ public class SubcriberCompositeClient {
 		rq.setMsisdn("09777171717");
 		rq.setInquiry(inquriy);
 		Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-        WebTarget target = client.target("http://127.0.0.1:8191/cxf/composite/subscriber");
+        WebTarget target = client.target("http://127.0.0.1:8190/cxf/composite/subscriber");
         target.request(MediaType.APPLICATION_JSON).post(Entity.json(rq), SubscriberRq.class);
         assertTrue(true);
 	}

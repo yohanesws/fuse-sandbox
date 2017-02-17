@@ -15,116 +15,142 @@
 	element for any OSGi Blueprint file is 'blueprint' - you also see the namespace 
 	definitions for both the Blueprint and the Camel namespaces. -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
-    xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-    <cm:property-placeholder persistent-id="com.redhat.fuse.sandbox.mq"/>
-    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="jmsConnectionFactory">
-        <property name="brokerURL" value="${amq.brokerURL}"/>
-        <property name="userName" value="${amq.userName}"/>
-        <property name="password" value="${amq.password}"/>
-    </bean>
-    <bean class="org.apache.activemq.pool.PooledConnectionFactory"
-        destroy-method="stop" id="pooledConnectionFactory" init-method="start">
-        <property name="maxConnections" value="${amq.maxConnections}"/>
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
-    <bean class="org.apache.camel.component.jms.JmsConfiguration" id="jmsConfig">
-        <property name="connectionFactory" ref="pooledConnectionFactory"/>
-    </bean>
-    <bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="amq">
-        <property name="configuration" ref="jmsConfig"/>
-    </bean>
-    <bean
-        class="com.redhat.fuse.sandbox.processor.SubscriberRsProcessor" id="requestProcessor"/>
-    <bean class="com.redhat.fuse.sandbox.strategy.SubscriberStrategy" id="subscriberStrategy"/>
-    <!-- JSON Providers -->
-    <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider"/>
-    <!-- CXF RS Endpoints -->
-    <cxf:rsServer address="/composite" id="subscriberCompositeRs"
-        loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberComposite">
-        <cxf:providers>
-            <ref component-id="jsonProvider"/>
-        </cxf:providers>
-    </cxf:rsServer>
-    <!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+	<cm:property-placeholder persistent-id="com.redhat.fuse.sandbox.mq" />
+	<bean class="org.apache.activemq.ActiveMQConnectionFactory" id="jmsConnectionFactory">
+		<property name="brokerURL" value="${amq.brokerURL}" />
+		<property name="userName" value="${amq.userName}" />
+		<property name="password" value="${amq.password}" />
+		<property name="trustedPackages">
+			<list>
+				<value>com.redhat.fuse.sandbox.model</value>
+				<value>java.util</value>
+			</list>
+		</property>
+	</bean>
+	<bean class="org.apache.activemq.pool.PooledConnectionFactory"
+		destroy-method="stop" id="pooledConnectionFactory" init-method="start">
+		<property name="maxConnections" value="${amq.maxConnections}" />
+		<property name="connectionFactory" ref="jmsConnectionFactory" />
+	</bean>
+	<bean class="org.apache.camel.component.jms.JmsConfiguration" id="jmsConfig">
+		<property name="connectionFactory" ref="pooledConnectionFactory" />
+	</bean>
+	<bean class="org.apache.activemq.camel.component.ActiveMQComponent"
+		id="amq">
+		<property name="configuration" ref="jmsConfig" />
+	</bean>
+	<bean class="com.redhat.fuse.sandbox.processor.SubscriberRsProcessor"
+		id="requestProcessor" />
+	<bean class="com.redhat.fuse.sandbox.strategy.SubscriberStrategy"
+		id="subscriberStrategy" />
+	<!-- JSON Providers -->
+	<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" id="jsonProvider" />
+	<!-- CXF RS Endpoints -->
+	<cxf:rsServer address="/composite" id="subscriberCompositeRs"
+		loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberComposite">
+		<cxf:providers>
+			<ref component-id="jsonProvider" />
+		</cxf:providers>
+	</cxf:rsServer>
+	<cxf:rsClient address="${cxfrs.url}" id="subscriberRsClient"
+		loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.rs.SubscriberRS">
+		<cxf:providers>
+			<ref component-id="jsonProvider" />
+		</cxf:providers>
+	</cxf:rsClient>
+	<!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
 		Additionally, we can also define namespace prefixes we want to use them in 
 		the XPath expressions in our CBR. While it is not required to assign id's 
 		to the <camelContext/> and <route/> elements, it is a good idea to set those 
 		for runtime management purposes (logging, JMX MBeans, ...) -->
-    <camelContext id="_context1" xmlns="http://camel.apache.org/schema/blueprint">
-        <route id="QueueSubscriber" shutdownRoute="Default">
-            <!-- <convertBodyTo id="_convertBodyTo1" type="com.redhat.fuse.sandbox.model.SubscriberRq"/> -->
-            <from id="_from3" uri="amq:queue:com.redhat.fuse.sandbox.subscriber?concurrentConsumers=1"/>
-            <log id="_log5" message="get queue Subcriber for ${body}"/>
-            <unmarshal id="_unmarshal1">
-                <json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.SubscriberRq"/>
-            </unmarshal>
-            <log id="_log12" message="queue unmarshall ${body}"/>
-            <setProperty id="_setProperty1" propertyName="subscriberrq">
-                <simple>${body}</simple>
-            </setProperty>
-            <split id="_split1" strategyRef="subscriberStrategy" streaming="true">
-                <simple>${property.subscriberrq.inquiry}</simple>
-                <log id="_log6" message="split result ${body}"/>
-                <choice id="_choice1">
-                    <when id="_when1">
-                        <simple>${body} == 'balance'</simple>
-                        <setBody id="_setBody1">
-                            <simple>${property.subscriberrq.msisdn}</simple>
-                        </setBody>
-                        <to id="_to3" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.balance"/>
-                        <log id="_log7" message="balance out ${out.body}"/>
-                    </when>
-                    <when id="_when2">
-                        <simple>${body} == 'profile'</simple>
-                        <setBody id="_setBody2">
-                            <simple>${property.subscriberrq.msisdn}</simple>
-                        </setBody>
-                        <to id="_to4" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.profile"/>
-                        <log id="_log8" message="balance out ${out.body}"/>
-                    </when>
-                    <otherwise id="_otherwise1">
-                        <to id="_to5" uri="direct:not-valid"/>
-                    </otherwise>
-                </choice>
-            </split>
-            <log id="_log9" message="composite result ${out.body}"/>
-            <marshal id="_marshal2">
-                <json library="Jackson" prettyPrint="true"/>
-            </marshal>
-        </route>
-        <route id="QueueBalance">
-            <from id="_from1" uri="amq:queue:com.redhat.fuse.sandbox.balance?concurrentConsumers=1"/>
-            <log id="_log1" message="get queue balance for ${body}"/>
-            <setHeader headerName="Operation" id="_header1">
-                <constant>balance</constant>
-            </setHeader>
-            <process id="_process1" ref="requestProcessor"/>
-            <to id="_to1" uri="cxfrs:bean:subscriberRsClient"/>
-            <log id="_log2" message="Response generated in CXF-RS:\n ${body}"/>
-        </route>
-        <route id="QueueProfile">
-            <from id="_from2" uri="amq:queue:com.redhat.fuse.sandbox.profile?concurrentConsumers=1"/>
-            <log id="_log3" message="get queue balance for ${body}"/>
-            <setHeader headerName="Operation" id="_header2">
-                <constant>profile</constant>
-            </setHeader>
-            <process id="_process2" ref="requestProcessor"/>
-            <to id="_to2" uri="cxfrs:bean:subscriberRsClient"/>
-            <log id="_log4" message="Response generated in CXF-RS:\n ${body}"/>
-        </route>
-        <route id="rs">
-            <!-- <transform id="_transform1">
-                <simple>${in.body[0]}</simple>
-            </transform> -->
-            <from id="_from4" uri="cxfrs:bean:subscriberCompositeRs"/>
-            <marshal id="_marshal3">
-                <json library="Jackson" prettyPrint="true"/>
-            </marshal>
-            <to id="_to6" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.subscriber"/>
-            <log id="_log10" message="Response generated in CXF-RS:\n${out.body}"/>
-        </route>
-    </camelContext>
-    <cxf:rsClient address="${cxfrs.url}" id="subscriberRsClient" loggingFeatureEnabled="true"/>
+	<camelContext id="_context1"
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<route id="QueueSubscriber" shutdownRoute="Default">
+			<!-- <unmarshal id="_unmarshal1"> <json library="Jackson" useList="true" 
+				allowJmsType="true" unmarshalTypeName="com.redhat.fuse.sandbox.model.SubscriberRq" 
+				/> </unmarshal> -->
+			<from id="_from3"
+				uri="amq:queue:com.redhat.fuse.sandbox.subscriber?concurrentConsumers=1" />
+			<log id="_log5" message="get queue Subcriber for ${body}" />
+			<convertBodyTo id="_convertBodyTo1"
+				type="com.redhat.fuse.sandbox.model.SubscriberRq" />
+			<log id="_log12" message="queue unmarshall ${body}" />
+			<setProperty id="_setProperty1" propertyName="subscriberrq">
+				<simple>${body}</simple>
+			</setProperty>
+			<split id="_split1" strategyRef="subscriberStrategy" streaming="true">
+				<simple>${property.subscriberrq.inquiry}</simple>
+				<log id="_log6" message="split result ${body}" />
+				<choice id="_choice1">
+					<when id="_when1">
+						<simple>${body} == 'balance'</simple>
+						<setBody id="_setBody1">
+							<simple>${property.subscriberrq.msisdn}</simple>
+						</setBody>
+						<to id="_to3" pattern="InOut"
+							uri="amq:queue:com.redhat.fuse.sandbox.balance" />
+						<log id="_log7" message="balance out ${out.body}" />
+					</when>
+					<when id="_when2">
+						<simple>${body} == 'profile'</simple>
+						<setBody id="_setBody2">
+							<simple>${property.subscriberrq.msisdn}</simple>
+						</setBody>
+						<to id="_to4" pattern="InOut"
+							uri="amq:queue:com.redhat.fuse.sandbox.profile" />
+						<log id="_log8" message="balance out ${out.body}" />
+					</when>
+					<otherwise id="_otherwise1">
+						<to id="_to5" uri="direct:not-valid" />
+					</otherwise>
+				</choice>
+			</split>
+			<log id="_log9" message="composite result ${out.body}" />
+			<marshal id="_marshal2">
+				<json library="Jackson" prettyPrint="true" />
+			</marshal>
+		</route>
+		<route id="QueueBalance">
+			<from id="_from1"
+				uri="amq:queue:com.redhat.fuse.sandbox.balance?concurrentConsumers=1" />
+			<log id="_log1" message="get queue balance for ${body}" />
+			<setHeader headerName="Operation" id="_header1">
+				<constant>balance</constant>
+			</setHeader>
+			<process id="_process1" ref="requestProcessor" />
+			<to id="_to1" uri="cxfrs:bean:subscriberRsClient" />
+			<log id="_log2" message="Response generated in CXF-RS:\n ${body}" />
+			<unmarshal id="_unmarshal3">
+				<json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.Balance" />
+			</unmarshal>
+		</route>
+		<route id="QueueProfile">
+			<from id="_from2"
+				uri="amq:queue:com.redhat.fuse.sandbox.profile?concurrentConsumers=1" />
+			<log id="_log3" message="get queue profile for ${body}" />
+			<setHeader headerName="Operation" id="_header2">
+				<constant>profile</constant>
+			</setHeader>
+			<process id="_process2" ref="requestProcessor" />
+			<to id="_to2" uri="cxfrs:bean:subscriberRsClient" />
+			<log id="_log4" message="Response generated in CXF-RS:\n ${body}" />
+			<unmarshal id="_unmarshal4">
+				<json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.Profile" />
+			</unmarshal>
+		</route>
+		<route id="rs">
+			<!-- <marshal id="_marshal3"> <json library="Jackson" prettyPrint="true" 
+				allowJmsType="true" useList="true"/> </marshal> -->
+			<from id="_from4" uri="cxfrs:bean:subscriberCompositeRs" />
+			<setBody id="_setBody3">
+				<simple>${body[0]}</simple>
+			</setBody>
+			<to id="_to6" pattern="InOut"
+				uri="amq:queue:com.redhat.fuse.sandbox.subscriber?requestTimeout=40000" />
+			<log id="_log10" message="Response generated in CXF-RS:\n${out.body}" />
+		</route>
+	</camelContext>
 </blueprint>

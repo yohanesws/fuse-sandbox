@@ -20,14 +20,14 @@ public class SubscriberStrategy implements AggregationStrategy {
         if (oldExchange == null) {
             // the first time we aggregate we only have the new exchange,
             // so we just return it
-        	newExchange.getOut().setBody(composeResponseObject(newExchange.getIn().getBody(), new SubscriberRs()));
-        	LOG.info("new exchange :"+newExchange.getOut().getBody());
+        	newExchange.getIn().setBody(composeResponseObject(newExchange.getIn().getBody(), new SubscriberRs()));
+        	LOG.info("new exchange :"+newExchange.getIn().getBody());
             return newExchange;
         }
         SubscriberRs response = (SubscriberRs) oldExchange.getOut().getBody();
         response = composeResponseObject(newExchange.getIn().getBody(), response);
-        oldExchange.getOut().setBody(response);
-        LOG.info("old exchange :"+oldExchange.getOut().getBody());
+        oldExchange.getIn().setBody(response);
+        LOG.info("old exchange :"+oldExchange.getIn().getBody());
 		return oldExchange;
 	}
 	
