@@ -16,5 +16,5 @@ public interface SubscriberComposite {
 	@Path("/subscriber")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public SubscriberRs getSubcriber(SubscriberRq request);
+	public SubscriberRs getSubscriber(SubscriberRq request);
 }
