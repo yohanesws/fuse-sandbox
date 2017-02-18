@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.List;
 
 public class SubscriberRq implements Serializable{
+	@Override
+	public String toString() {
+		return "SubscriberRq [msisdn=" + msisdn + ", inquiry=" + inquiry + "]";
+	}
 	/**
 	 * 
 	 */

@@ -16,7 +16,7 @@ public class SubscriberStrategy implements AggregationStrategy {
 	@Override
 	public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
 		// put order together in old exchange by adding the order from new exchange
-		 
+		LOG.debug("oldExchange : "+oldExchange +" newExchange : "+newExchange);
         if (oldExchange == null) {
             // the first time we aggregate we only have the new exchange,
             // so we just return it
@@ -24,7 +24,7 @@ public class SubscriberStrategy implements AggregationStrategy {
         	LOG.info("new exchange :"+newExchange.getIn().getBody());
             return newExchange;
         }
-        SubscriberRs response = (SubscriberRs) oldExchange.getOut().getBody();
+        SubscriberRs response = (SubscriberRs) oldExchange.getIn().getBody();
         response = composeResponseObject(newExchange.getIn().getBody(), response);
         oldExchange.getIn().setBody(response);
         LOG.info("old exchange :"+oldExchange.getIn().getBody());
@@ -36,6 +36,7 @@ public class SubscriberStrategy implements AggregationStrategy {
 			response.setProfileGroup(((Profile)body).getProfileGroup());
 			response.setProfileNo(((Profile)body).getProfileNo());
 		}else if (body instanceof Balance){
+			response.setMsisdn(((Balance)body).getMsisdn());
 			response.setBalance(((Balance)body).getBalance());
 		}
 		return response;

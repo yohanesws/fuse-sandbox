@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class SubscriberRs implements Serializable{
+	@Override
+	public String toString() {
+		return "SubscriberRs [balance=" + balance + ", msisdn=" + msisdn + ", profileNo=" + profileNo
+				+ ", profileGroup=" + profileGroup + "]";
+	}
 	/**
 	 * 
 	 */

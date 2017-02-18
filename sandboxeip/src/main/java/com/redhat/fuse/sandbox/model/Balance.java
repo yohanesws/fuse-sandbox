@@ -7,6 +7,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="balance")
 public class Balance implements Serializable{
+	@Override
+	public String toString() {
+		return "Balance [balance=" + balance + ", msisdn=" + msisdn + "]";
+	}
 	/**
 	 * 
 	 */

@@ -27,6 +27,7 @@
             <list>
                 <value>com.redhat.fuse.sandbox.model</value>
                 <value>java.util</value>
+                <value>java.math</value>
             </list>
         </property>
     </bean>
@@ -89,6 +90,7 @@
                         </setBody>
                         <to id="_to3" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.balance"/>
                         <log id="_log7" message="balance out ${body}"/>
+            			<convertBodyTo type="com.redhat.fuse.sandbox.model.Balance" id="_convertBodyTo8"/>
                     </when>
                     <when id="_when2">
                         <simple>${body} == 'profile'</simple>
@@ -97,6 +99,7 @@
                         </setBody>
                         <to id="_to4" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.profile"/>
                         <log id="_log8" message="profile out ${body}"/>
+            			<convertBodyTo type="com.redhat.fuse.sandbox.model.Profile" id="_convertBodyTo9"/>
                     </when>
                     <otherwise id="_otherwise1">
                         <to id="_to5" uri="direct:not-valid"/>
@@ -117,9 +120,7 @@
             <process id="_process1" ref="requestApiProcessor"/>
             <to id="_to1" uri="cxfrs:bean:subscriberRsClient"/>
             <log id="_log2" message="Response generated in CXF-RS:\n ${body}"/>
-            <unmarshal id="_unmarshal3">
-                <json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.Balance"/>
-            </unmarshal>
+            <convertBodyTo type="com.redhat.fuse.sandbox.model.Balance" id="_convertBodyTo5"/>
         </route>
         <route id="QueueProfile">
             <from id="_from2" uri="amq:queue:com.redhat.fuse.sandbox.profile?concurrentConsumers=1"/>
@@ -130,9 +131,7 @@
             <process id="_process2" ref="requestApiProcessor"/>
             <to id="_to2" uri="cxfrs:bean:subscriberRsClient"/>
             <log id="_log4" message="Response generated in CXF-RS:\n ${body}"/>
-            <unmarshal id="_unmarshal4">
-                <json library="Jackson" unmarshalTypeName="com.redhat.fuse.sandbox.model.Profile"/>
-            </unmarshal>
+            <convertBodyTo type="com.redhat.fuse.sandbox.model.Profile" id="_convertBodyTo6"/>
         </route>
         <route id="rs">
             <!-- <marshal id="_marshal3"> <json library="Jackson" prettyPrint="true" 

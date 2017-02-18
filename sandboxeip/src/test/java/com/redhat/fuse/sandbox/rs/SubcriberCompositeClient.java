@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.redhat.fuse.sandbox.model.SubscriberRq;
+import com.redhat.fuse.sandbox.model.SubscriberRs;
 
 public class SubcriberCompositeClient {
 	private static final Logger LOG = LoggerFactory.getLogger(SubcriberCompositeClient.class);
@@ -28,7 +29,8 @@ public class SubcriberCompositeClient {
 		rq.setInquiry(inquriy);
 		Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
         WebTarget target = client.target("http://127.0.0.1:8190/cxf/composite/subscriber");
-        target.request(MediaType.APPLICATION_JSON).post(Entity.json(rq), SubscriberRq.class);
-        assertTrue(true);
+        SubscriberRs rs = target.request(MediaType.APPLICATION_JSON).post(Entity.json(rq), SubscriberRs.class);
+        LOG.info(rs.toString());
+        assertTrue(rs.getMsisdn().equals(rq.getMsisdn()));
 	}
 }

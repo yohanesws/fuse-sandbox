@@ -6,6 +6,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="profile")
 public class Profile implements Serializable{
+	@Override
+	public String toString() {
+		return "Profile [profileNo=" + profileNo + ", profileGroup=" + profileGroup + ", msisdn=" + msisdn + "]";
+	}
 	/**
 	 * 
 	 */
