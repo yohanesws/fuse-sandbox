@@ -1,5 +1,7 @@
 package com.redhat.fuse.sandbox.rs;
 
+import java.util.Map;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -12,9 +14,15 @@ import com.redhat.fuse.sandbox.model.SubscriberRs;
 @Path("/")
 public interface SubscriberComposite {
 
+//	@POST
+//	@Path("/subscriber")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	public SubscriberRs getSubscriber(SubscriberRq request);
+	
 	@POST
 	@Path("/subscriber")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public SubscriberRs getSubscriber(SubscriberRq request);
+	public Map getSubscriber(SubscriberRq request);
 }

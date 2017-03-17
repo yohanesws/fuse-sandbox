@@ -90,7 +90,7 @@
                         </setBody>
                         <to id="_to3" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.balance"/>
                         <log id="_log7" message="balance out ${body}"/>
-            			<convertBodyTo type="com.redhat.fuse.sandbox.model.Balance" id="_convertBodyTo8"/>
+                        <convertBodyTo id="_convertBodyTo8" type="com.redhat.fuse.sandbox.model.Balance"/>
                     </when>
                     <when id="_when2">
                         <simple>${body} == 'profile'</simple>
@@ -99,14 +99,16 @@
                         </setBody>
                         <to id="_to4" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.profile"/>
                         <log id="_log8" message="profile out ${body}"/>
-            			<convertBodyTo type="com.redhat.fuse.sandbox.model.Profile" id="_convertBodyTo9"/>
+                        <convertBodyTo id="_convertBodyTo9" type="com.redhat.fuse.sandbox.model.Profile"/>
                     </when>
                     <otherwise id="_otherwise1">
-                        <to id="_to5" uri="direct:not-valid"/>
+                        <setBody id="_setBody2">
+                            <simple>${body} not applicable</simple>
+                        </setBody>
                     </otherwise>
                 </choice>
             </split>
-            <log id="_log9" message="composite result ${out.body}"/>
+            <log id="_log9" message="composite result ${body}"/>
             <marshal id="_marshal2">
                 <json library="Jackson" prettyPrint="true"/>
             </marshal>
@@ -120,7 +122,7 @@
             <process id="_process1" ref="requestApiProcessor"/>
             <to id="_to1" uri="cxfrs:bean:subscriberRsClient"/>
             <log id="_log2" message="Response generated in CXF-RS:\n ${body}"/>
-            <convertBodyTo type="com.redhat.fuse.sandbox.model.Balance" id="_convertBodyTo5"/>
+            <convertBodyTo id="_convertBodyTo5" type="com.redhat.fuse.sandbox.model.Balance"/>
         </route>
         <route id="QueueProfile">
             <from id="_from2" uri="amq:queue:com.redhat.fuse.sandbox.profile?concurrentConsumers=1"/>
@@ -131,17 +133,15 @@
             <process id="_process2" ref="requestApiProcessor"/>
             <to id="_to2" uri="cxfrs:bean:subscriberRsClient"/>
             <log id="_log4" message="Response generated in CXF-RS:\n ${body}"/>
-            <convertBodyTo type="com.redhat.fuse.sandbox.model.Profile" id="_convertBodyTo6"/>
+            <convertBodyTo id="_convertBodyTo6" type="com.redhat.fuse.sandbox.model.Profile"/>
         </route>
         <route id="rs">
-            <!-- <marshal id="_marshal3"> <json library="Jackson" prettyPrint="true" 
-				allowJmsType="true" useList="true"/> </marshal> -->
             <from id="_from4" uri="cxfrs:bean:subscriberCompositeRs"/>
             <setBody id="_setBody3">
                 <simple>${body[0]}</simple>
             </setBody>
             <to id="_to6" pattern="InOut" uri="amq:queue:com.redhat.fuse.sandbox.subscriber?requestTimeout=40000"/>
-            <log id="_log10" message="Response generated in CXF-RS:\n${out.body}"/>
+            <log id="_log10" message="Response generated in CXF-RS:\n${body}"/>
         </route>
     </camelContext>
 </blueprint>

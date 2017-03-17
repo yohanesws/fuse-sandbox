@@ -27,7 +27,7 @@ public class SubscriberRSClient {
 	@Test
     public void sendBalanceRequest() throws Exception {
 		Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-        WebTarget target = client.target("http://127.0.0.1:8185/cxf/rs/subscriber/balance/0815888888");
+        WebTarget target = client.target("http://172.16.1.4:9000/cxf/rs/subscriber/balance/0815888888");
 
         Response a = target.request(MediaType.APPLICATION_JSON).get();
         a.bufferEntity();
@@ -48,7 +48,7 @@ public class SubscriberRSClient {
 	@Test
     public void sendProfileRequest() throws Exception {
 		Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-        WebTarget target = client.target("http://127.0.0.1:8185/cxf/rs/subscriber/profile/0815888888");
+        WebTarget target = client.target("http://172.16.1.4:9000/cxf/rs/subscriber/profile/0815888888");
 
         Response a = target.request(MediaType.APPLICATION_JSON).get();
         a.bufferEntity();

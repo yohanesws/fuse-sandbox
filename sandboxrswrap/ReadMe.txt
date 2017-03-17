@@ -13,6 +13,11 @@ To deploy the project in OSGi. For example using Apache Karaf.
 You can run the following command from its shell:
 
     osgi:install -s mvn:com.mycompany/camel-blueprint/1.0.0-SNAPSHOT
+    
+To push the fabric profile
+
+	mvn clean compile install fabric8:deploy
+
 
 For more help see the Apache Camel documentation
 

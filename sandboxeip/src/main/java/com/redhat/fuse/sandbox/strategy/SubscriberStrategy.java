@@ -1,5 +1,8 @@
 package com.redhat.fuse.sandbox.strategy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.slf4j.Logger;
@@ -20,6 +23,28 @@ public class SubscriberStrategy implements AggregationStrategy {
         if (oldExchange == null) {
             // the first time we aggregate we only have the new exchange,
             // so we just return it
+        	newExchange.getIn().setBody(composeDynamicResponse(newExchange.getIn().getBody(), new HashMap()));
+        	LOG.info("new exchange :"+newExchange.getIn().getBody());
+            return newExchange;
+        }
+        Map response = (Map) oldExchange.getIn().getBody();
+        response = composeDynamicResponse(newExchange.getIn().getBody(), response);
+        oldExchange.getIn().setBody(response);
+        LOG.info("old exchange :"+oldExchange.getIn().getBody());
+		return oldExchange;
+	}
+
+	private Map composeDynamicResponse (Object body, Map response){
+		response.put(body.getClass().getSimpleName(), body);
+		return response;
+	}
+	
+	public Exchange aggregateOld(Exchange oldExchange, Exchange newExchange) {
+		// put order together in old exchange by adding the order from new exchange
+		LOG.debug("oldExchange : "+oldExchange +" newExchange : "+newExchange);
+        if (oldExchange == null) {
+            // the first time we aggregate we only have the new exchange,
+            // so we just return it
         	newExchange.getIn().setBody(composeResponseObject(newExchange.getIn().getBody(), new SubscriberRs()));
         	LOG.info("new exchange :"+newExchange.getIn().getBody());
             return newExchange;
@@ -33,6 +58,7 @@ public class SubscriberStrategy implements AggregationStrategy {
 	
 	private SubscriberRs composeResponseObject (Object body, SubscriberRs response){
 		if(body instanceof Profile){
+			response.setMsisdn(((Profile)body).getMsisdn());
 			response.setProfileGroup(((Profile)body).getProfileGroup());
 			response.setProfileNo(((Profile)body).getProfileNo());
 		}else if (body instanceof Balance){
@@ -41,5 +67,6 @@ public class SubscriberStrategy implements AggregationStrategy {
 		}
 		return response;
 	}
+	
 
 }

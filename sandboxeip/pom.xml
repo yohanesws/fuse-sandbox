@@ -201,7 +201,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<jolokiaUrl>http://localhost:8181/jolokia</jolokiaUrl>
+					<jolokiaUrl>http://172.16.1.4:8181/jolokia</jolokiaUrl>
 					<serverId>fabric8.fuse</serverId>
 				</configuration>
 			</plugin>

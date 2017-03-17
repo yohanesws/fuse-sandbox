@@ -27,7 +27,7 @@
             <ref component-id="jsonProvider"/>
         </cxf:providers>
     </cxf:rsServer>
-    <cxf:cxfEndpoint address="http://127.0.0.1:9010/ws/subscriber"
+    <cxf:cxfEndpoint address="http://172.16.1.4:9000/ws/subscriber"
         id="subscriberWebService" loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS"/>
     <!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
 		Additionally, we can also define namespace prefixes we want to use them in 
