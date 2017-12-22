@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- JBoss, Home of Professional Open Source Copyright 2014, Red Hat, Inc. 
+	and/or its affiliates, and individual contributors by the @authors tag. See 
+	the copyright.txt in the distribution for a full listing of individual contributors. 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<!-- This is the OSGi Blueprint XML file defining the Camel context and routes. 
+	Because the file is in the OSGI-INF/blueprint directory inside our JAR, it 
+	will be automatically activated as soon as the bundle is installed. The root 
+	element for any OSGi Blueprint file is 'blueprint' - you also see the namespace 
+	definitions for both the Blueprint and the Camel namespaces. -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
+		While it is not required to assign id's to the <camelContext/> and <route/> 
+		elements, it is a good idea to set those for runtime management purposes 
+		(logging, JMX MBeans, ...) -->
+    <cxf:cxfEndpoint address="http://localhost:8181/cxf/ws/subscriber"
+        id="subscriberWebService" loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS"/>
+    <!-- to setup camel servlet with OSGi HttpService -->
+    <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
+    <bean
+        class="org.apache.camel.component.servlet.osgi.OsgiServletRegisterer"
+        destroy-method="unregister" id="servletRegisterer" init-method="register">
+        <property name="alias" value="/rest"/>
+        <property name="httpService" ref="httpService"/>
+        <property name="servlet" ref="camelServlet"/>
+    </bean>
+    <bean
+        class="org.apache.camel.component.servlet.CamelHttpTransportServlet" id="camelServlet"/>
+    <camelContext id="_RestSandbox" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration apiContextListing="true"
+            apiContextPath="api-docs"
+            component="servlet" contextPath="/rest" enableCORS="true"
+            host="0.0.0.0" port="8181"/>
+        <rest path="/subcriber">
+            <get uri="/balance/{msisdn}">
+                <to uri="direct:getSubcriberBalance"/>
+            </get>
+            <get uri="/profile/{msisdn}">
+                <to uri="direct:getSubscriberProfile"/>
+            </get>
+        </rest>
+        <route id="balance">
+            <from id="_from3" uri="direct:getSubcriberBalance"/>
+            <setBody id="_setBody1">
+                <simple>${header.msisdn}</simple>
+            </setBody>
+            <log id="_log6" message="${body}"/>
+            <convertBodyTo id="_convertBodyTo4" type="java.lang.String"/>
+            <setHeader headerName="operationName" id="_header2">
+                <constant>getSubcriberBalance</constant>
+            </setHeader>
+            <log id="_log1" message="Request generated :\n${body}"/>
+            <to id="_to2" uri="cxf:bean:subscriberWebService"/>
+            <setBody id="_setBody4">
+                <simple>${body}</simple>
+            </setBody>
+            <convertBodyTo id="_convertBodyTo2" type="com.redhat.fuse.sandbox.ws.Balance"/>
+            <marshal id="_marshal1">
+                <json library="Jackson" prettyPrint="true"/>
+            </marshal>
+            <setHeader headerName="Exchange.CONTENT_TYPE" id="_headerCT1">
+                <constant>application/json</constant>
+            </setHeader>
+            <log id="_log3" message="Response generated in CXF-RS:\n${body}"/>
+        </route>
+        <route id="profile">
+            <from id="_from4" uri="direct:getSubscriberProfile"/>
+            <setBody id="_setBody2">
+                <simple>${header.msisdn}</simple>
+            </setBody>
+            <log id="_log5" message="${body}"/>
+            <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
+            <setHeader headerName="operationName" id="_header3">
+                <constant>getSubscriberProfile</constant>
+            </setHeader>
+            <log id="_log2" message="Request generated in CXF-RS:\n${body}"/>
+            <to id="_to3" uri="cxf:bean:subscriberWebService"/>
+            <setBody id="_setBody3">
+                <simple>${body}</simple>
+            </setBody>
+            <convertBodyTo id="_convertBodyTo3" type="com.redhat.fuse.sandbox.ws.Profile"/>
+            <marshal id="_marshal2">
+                <json library="Jackson" prettyPrint="true"/>
+            </marshal>
+            <setHeader headerName="Exchange.CONTENT_TYPE" id="_headerCT2">
+                <constant>application/json</constant>
+            </setHeader>
+            <log id="_log4" message="Response generated in CXF-RS:\n${body}"/>
+        </route>
+    </camelContext>
+</blueprint>
