@@ -36,15 +36,20 @@
         class="org.apache.camel.component.servlet.CamelHttpTransportServlet" id="camelServlet"/>
     <camelContext id="_RestSandbox" xmlns="http://camel.apache.org/schema/blueprint">
         <restConfiguration apiContextListing="true"
-            apiContextPath="api-docs"
-            component="servlet" contextPath="/rest" enableCORS="true"
-            host="0.0.0.0" port="8181"/>
+            apiContextPath="api-docs" component="servlet"
+            contextPath="/rest" enableCORS="true" host="0.0.0.0" port="8181"/>
         <rest path="/subcriber">
             <get uri="/balance/{msisdn}">
                 <to uri="direct:getSubcriberBalance"/>
             </get>
             <get uri="/profile/{msisdn}">
                 <to uri="direct:getSubscriberProfile"/>
+            </get>
+            <get uri="/securecrm/{customerid}">
+                <to uri="direct:securecrm"/>
+            </get>
+            <get uri="/cxfsecurecrm">
+                <to uri="direct:cxfsecurecrm"/>
             </get>
         </rest>
         <route id="balance">
@@ -94,6 +99,16 @@
                 <constant>application/json</constant>
             </setHeader>
             <log id="_log4" message="Response generated in CXF-RS:\n${body}"/>
+        </route>
+        <route id="secureRestWrapper">
+            <from id="_from1" uri="direct:securecrm"/>
+            <removeHeaders id="removeHeader" pattern="CamelHttp*"/>
+            <toD id="_toD1" pattern="InOut" uri="http4://localhost:8181/cxf/securecrm/customerservice/customers/${header.customerid}?authUsername=admin&amp;authPassword=admin&amp;authMethod=basic"/>
+            <convertBodyTo id="_convertBodyTo6" type="java.lang.String"/>
+            <setHeader headerName="Exchange.CONTENT_TYPE" id="_headersecure">
+                <constant>application/xml</constant>
+            </setHeader>
+            <log id="_log8" message="Response generated in RS:\n${body}"/>
         </route>
     </camelContext>
 </blueprint>
