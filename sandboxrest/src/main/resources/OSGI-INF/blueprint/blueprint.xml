@@ -23,6 +23,10 @@
 		(logging, JMX MBeans, ...) -->
     <cxf:cxfEndpoint address="http://localhost:8181/cxf/ws/subscriber"
         id="subscriberWebService" loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.sandbox.ws.SubscriberWS"/>
+    <cxf:rsClient
+        address="http://localhost:8181/cxf/securecrm/customerservice/customers/123"
+        id="rsClient" loggingFeatureEnabled="true" username="admin" password="admin">
+    </cxf:rsClient>
     <!-- to setup camel servlet with OSGi HttpService -->
     <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
     <bean
@@ -109,6 +113,15 @@
                 <constant>application/xml</constant>
             </setHeader>
             <log id="_log8" message="Response generated in RS:\n${body}"/>
+        </route>
+        <route id="cxfRsClient">
+            <from id="_from2" uri="direct:cxfsecurecrm"/>
+            <to id="_to1" uri="cxfrs:bean:rsClient"/>
+            <convertBodyTo id="_convertBodyTo5" type="java.lang.String"/>
+            <setHeader headerName="Exchange.CONTENT_TYPE" id="_setHeader1">
+                <constant>application/xml</constant>
+            </setHeader>
+            <log id="_log7" message="Response generated in RS:\n${body}"/>
         </route>
     </camelContext>
 </blueprint>
